@@ -1,0 +1,41 @@
+version: '3.1'
+
+services:
+  php:
+    image: phpdockerio/php80-fpm:latest
+    depends_on:
+      - db
+    volumes:
+      - ./:/app
+      - ~/.composer:/root/.composer
+    working_dir: /app
+    environment:
+      PHP_IDE_CONFIG: "serverName=sleep-tracker.local"
+      XDEBUG_SESSION: 1
+
+  nginx:
+    image: demroos/symfony-nginx:latest
+    working_dir: /app
+    links:
+      - php:php-fpm
+    depends_on:
+      - php
+    ports:
+      - '${NGINX_PORT:-8080}:80'
+    volumes:
+      - ./:/app
+  db:
+    image: postgres:latest
+    ports:
+      - '${DB_PORT:-5452}:5432'
+    volumes:
+      - dbdata:/var/lib/postgresql/data/pgdata
+    environment:
+      PGDATA: /var/lib/postgresql/data/pgdata
+      POSTGRES_USER: sleep-tracker
+      POSTGRES_DB: sleep-tracker
+      POSTGRES_PASSWORD: 123456
+
+volumes:
+  dbdata:
+    driver: local
