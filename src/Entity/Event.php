@@ -109,6 +109,16 @@ class Event
         return $this;
     }
 
+    public function getTagsNames(): ArrayCollection
+    {
+        $tagsNames = new ArrayCollection();
+        foreach ($this->getTags() as $tag) {
+            $tagsNames->add($tag->getName());
+        }
+
+        return $tagsNames;
+    }
+
     /**
      * @return Collection<int, Tag>
      */

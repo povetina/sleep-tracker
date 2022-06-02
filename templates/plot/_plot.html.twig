@@ -1,0 +1,23 @@
+<div class="container position-relative">
+    <div class="grid-container position-absolute w-100">
+        <div class="border-bottom h-100 d-flex" style="padding-left: 4%">
+            {% for i in 0..23 %}
+                <div class="hour-grid min-vh-100">{{ i }}</div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="events-container position-absolute w-100" style="top: 25px">
+        {% for event in events %}
+            <div class="border-bottom h-100 d-flex">
+                <div class="hour-grid">
+                    {{ event.day ? event.day.date|date('d.m') : '' }}
+                </div>
+            </div>
+
+        {% else %}
+            <tr>
+                <td colspan="6">no records found</td>
+            </tr>
+        {% endfor %}
+    </div>
+</div>
