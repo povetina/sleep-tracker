@@ -15,9 +15,9 @@ class SleepCountService
 
     public function getDailyStatistics(): array
     {
-        $events = $this->eventRepository->findSleepGroupByDate();
+        $events = $this->eventRepository->findSleepOrderByDate();
 
-        $eventsByDates = self::buildEventsByDatesArray($events);
+        $summaryByDates = self::buildEventsByDatesArray($events);
 
         foreach ($events as $event) {
             $started = $event->getStarted();
@@ -26,13 +26,13 @@ class SleepCountService
 
             if ($sleepType == 'night' && $event->getStarted()->format('H') > 18) {
                 $nextDay = $started->modify('+1 day')->format('Y-m-d');
-                $eventsByDates[$nextDay]['night']['duration'] += $event->getDuration();
+                $summaryByDates[$nextDay]['night']['duration'] += $event->getDuration();
             } else {
-                $eventsByDates[$startedStamp]['day']['duration'] = $this->countDaySleep($event->getStarted());
+                $summaryByDates[$startedStamp]['day']['duration'] = $this->countDaySleep($event->getStarted());
             }
         }
 
-        foreach ($eventsByDates as $date => $eventsByDate) {
+        foreach ($summaryByDates as $date => $eventsByDate) {
             $dailyEvents = $this->eventRepository->findEventsByDate($date);
 
             $awakeStart = null;
@@ -53,7 +53,7 @@ class SleepCountService
                         }
                     }
                 }
-                $eventsByDates[$date]['awake'] = [
+                $summaryByDates[$date]['awake'] = [
                     'started' => $awakeStart,
                     'finished' => $awakeFinish,
                     'day_duration' => 0,
@@ -62,9 +62,37 @@ class SleepCountService
 
                 if ($awakeStart instanceof \DateTimeInterface && $awakeFinish instanceof \DateTimeInterface) {
                     $dayDuration = $awakeFinish->getTimestamp() - $awakeStart->getTimestamp();
-                    $eventsByDates[$date]['awake']['day_duration'] = $dayDuration;
-                    $eventsByDates[$date]['awake']['duration'] = $dayDuration - $eventsByDates[$date]['day']['duration'];
+                    $summaryByDates[$date]['awake']['day_duration'] = $dayDuration;
+                    $summaryByDates[$date]['awake']['duration'] = $dayDuration - $summaryByDates[$date]['day']['duration'];
                 }
+            }
+        }
+        krsort($summaryByDates);
+        return $summaryByDates;
+    }
+
+    public function getEventsForPlot(): array
+    {
+        $events = $this->eventRepository->findSleepOrderByDate();
+        $eventsByDates = [];
+
+        foreach ($events as $event) {
+            $startedYmd = $event->getStarted()->format('Y-m-d');
+            $finishedYmd = $event->getFinished()->format('Y-m-d');
+            if ($startedYmd != $finishedYmd) {
+                $beforeMidnightEvent = clone $event;
+                $afterMidnightEvent = clone $event;
+
+                $beforeMidnightEvent->setFinished(new \DateTimeImmutable(sprintf('%s 23:59:59', $startedYmd)));
+                $beforeMidnightEvent->setDuration();
+
+                $afterMidnightEvent->setStarted(new \DateTimeImmutable(sprintf("%s 00:00:00", $finishedYmd)));
+                $afterMidnightEvent->setDuration();
+
+                $eventsByDates[$startedYmd][] = $beforeMidnightEvent;
+                $eventsByDates[$finishedYmd][] = $afterMidnightEvent;
+            } else {
+                $eventsByDates[$startedYmd][] = $event;
             }
         }
         krsort($eventsByDates);

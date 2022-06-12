@@ -9,5 +9,14 @@ body {
   width: 4%;
   float: left;
   display: block;
+}
+
+.border-right {
   border-right: 1px solid lightcoral;
+}
+
+.flex-justify {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
 }

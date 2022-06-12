@@ -1,19 +1,31 @@
 <div class="container position-relative">
     <div class="grid-container position-absolute w-100">
         <div class="border-bottom h-100 d-flex" style="padding-left: 4%">
-            {% for i in 0..23 %}
-                <div class="hour-grid min-vh-100">{{ i }}</div>
+            {% for i in 0..24 %}
+                <div class="hour-grid border-right min-vh-100">{{ i }}</div>
             {% endfor %}
         </div>
     </div>
     <div class="events-container position-absolute w-100" style="top: 25px">
-        {% for event in events %}
-            <div class="border-bottom h-100 d-flex">
-                <div class="hour-grid">
-                    {{ event.day ? event.day.date|date('d.m') : '' }}
+        {% for date, events in eventsByDates %}
+            <div class="border-bottom h-100 d-flex position-relative">
+                <div class="hour-grid border-right">
+                    {{ date|date('d.m') }}
                 </div>
-            </div>
+            {% for event in events %}
+                {% set hours = event.started|date('H') %}
+                {% set minutes = event.started|date('i') %}
+                {% set decimal = hours + minutes/60 %}
+                {% set left = decimal * 4 + 4%}
 
+                {% set hoursDuration = event.duration|date('H') %}
+                {% set minutesDuration = event.duration|date('i') %}
+                {% set decimalDuration = hoursDuration + minutesDuration/60 %}
+                {% set width = decimalDuration * 4 %}
+
+                <div class="position-absolute bg-success d-inline-block h-100" style="left: {{ left }}%; width: {{ width }}%"></div>
+            {% endfor %}
+            </div>
         {% else %}
             <tr>
                 <td colspan="6">no records found</td>

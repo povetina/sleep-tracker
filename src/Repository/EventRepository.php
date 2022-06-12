@@ -81,7 +81,7 @@ class EventRepository extends ServiceEntityRepository
     /**
      * @return Event[]
      */
-    public function findSleepGroupByDate(): array
+    public function findSleepOrderByDate(): array
     {
         return $this->createQueryBuilder('e')
             ->andWhere('e.type = :sleep')

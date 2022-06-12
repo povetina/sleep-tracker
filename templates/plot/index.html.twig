@@ -3,45 +3,47 @@
 {% block title %}Plot{% endblock %}
 
 {% block content %}
-    <table class="table">
-        <thead>
-        <tr>
-            <th>Average Day Nap</th>
-            <th>Average Night Sleep</th>
-            <th>Average Awake Time</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-            <td>{{ avg_day }}</td>
-            <td>{{ avg_night }}</td>
-            <td>{{ avg_awake }}</td>
-        </tr>
-        </tbody>
-    </table>
-    <table class="table">
-        <thead>
-        <tr>
-            <th>Date</th>
-            <th>Day Nap Duration</th>
-            <th>Night Sleep Duration</th>
-            <th>Awake Time</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for event in events %}
-            <tr>
-                <td>{{ event.day ? event.day.date|date('d M') : '' }}</td>
-                <td>{{ event.day ? event.day.duration|date('H:i') : '' }}</td>
-                <td>{{ event.night ? event.night.duration|date('H:i') : '' }}</td>
-                <td>{{ event.awake ? event.awake.duration|date('H:i') : '' }}</td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="6">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-    {{ include('plot/_plot.html.twig') }}
+    <div class="row">
+        <div class="col-md-4">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Средний ДС</th>
+                    <th>Средний НС</th>
+                    <th>Среднее ВБ</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>{{ avg_day|date('H:i') }}</td>
+                    <td>{{ avg_night|date('H:i') }}</td>
+                    <td>{{ avg_awake|date('H:i') }}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-10">
+            {{ include('plot/_plot.html.twig') }}
+        </div>
+        <div class="col-md-2">
+            <div>
+                <div class="border-bottom h-100 w-100 flex-justify">
+                    <div class="d-inline-block">ДС</div>
+                    <div class="d-inline-block">НС</div>
+                    <div class="d-inline-block">ВБ</div>
+                </div>
+                {% for event in summary %}
+                    <div class="border-bottom h-100 w-100 flex-justify">
+                        <div class="d-inline-block">{{ event.day ? event.day.duration|date('H:i') : '' }}</div>
+                        <div class="d-inline-block">{{ event.night ? event.night.duration|date('H:i') : '' }}</div>
+                        <div class="d-inline-block">{{ event.awake ? event.awake.duration|date('H:i') : '' }}</div>
+                    </div>
+                {% else %}
+                    <div>no records found</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
 {% endblock %}
