@@ -9,7 +9,7 @@ services:
     volumes:
       - ./:/app
       - ~/.composer:/root/.composer
-      - ./etc/docker/php/php-ini-overrides.ini:/etc/php/8.0/fpm/conf.d/99-overrides.ini
+      - ./etc/docker/php/php-ini-overrides.ini:/etc/php8/conf.d/99-overrides.ini
     working_dir: /app
     environment:
       PHP_IDE_CONFIG: "serverName=sleep-tracker.local"
